@@ -8,7 +8,18 @@
         document.addEventListener("DOMContentLoaded", function() {
             const checkInBtn = document.getElementById("checkInBtn");
             const status = document.getElementById("status");
+            const referralLink = document.getElementById("referralLink");
+            const referralCountDisplay = document.getElementById("referralCount");
+            
             const lastCheckIn = localStorage.getItem("lastCheckIn");
+            const userId = localStorage.getItem("userId") || generateUserId();
+            let referrals = JSON.parse(localStorage.getItem("referrals")) || [];
+
+            function generateUserId() {
+                const id = "user_" + Math.floor(Math.random() * 1000000);
+                localStorage.setItem("userId", id);
+                return id;
+            }
 
             function canCheckIn() {
                 if (!lastCheckIn) return true;
@@ -28,6 +39,34 @@
             if (!canCheckIn()) {
                 status.innerText = "You need to wait 24 hours before checking in again.";
             }
+
+            // Handle referrals
+            const urlParams = new URLSearchParams(window.location.search);
+            const referrer = urlParams.get("ref");
+
+            if (referrer && referrer !== userId && !referrals.includes(referrer)) {
+                referrals.push(referrer);
+                localStorage.setItem("referrals", JSON.stringify(referrals));
+            }
+
+            // Display referral link
+            referralLink.innerText = window.location.origin + window.location.pathname + "?ref=" + userId;
+            referralLink.href = window.location.origin + window.location.pathname + "?ref=" + userId;
+
+            // Display referral count
+            referralCountDisplay.innerText = referrals.length;
+
+            // Reward system for referrals
+            function checkReferralRewards() {
+                const count = referrals.length;
+                let message = "";
+                if (count >= 100) message = "You've reached 100 referrals! Huge bonus unlocked!";
+                else if (count >= 10) message = "You've reached 10 referrals! Extra bonus unlocked!";
+                else if (count >= 5) message = "You've reached 5 referrals! Small bonus unlocked!";
+                return message;
+            }
+
+            document.getElementById("rewardMessage").innerText = checkReferralRewards();
         });
     </script>
 </head>
@@ -35,5 +74,11 @@
     <h1>Mine TheOG Token</h1>
     <p id="status">Click the button to check in and mine tokens.</p>
     <button id="checkInBtn">Check In</button>
+    
+    <h2>Your Referral Link:</h2>
+    <a id="referralLink" href="#">Generating...</a>
+
+    <h2>Referral Count: <span id="referralCount">0</span></h2>
+    <p id="rewardMessage"></p>
 </body>
 </html>
