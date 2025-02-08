@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mine TheOG Token</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const checkInBtn = document.getElementById("checkInBtn");
+            const status = document.getElementById("status");
+            const lastCheckIn = localStorage.getItem("lastCheckIn");
+
+            function canCheckIn() {
+                if (!lastCheckIn) return true;
+                const now = new Date().getTime();
+                return now - parseInt(lastCheckIn) >= 86400000; // 24 hours
+            }
+
+            checkInBtn.addEventListener("click", function() {
+                if (canCheckIn()) {
+                    localStorage.setItem("lastCheckIn", new Date().getTime());
+                    status.innerText = "Check-in successful! Come back in 24 hours.";
+                } else {
+                    status.innerText = "You need to wait 24 hours before checking in again.";
+                }
+            });
+
+            if (!canCheckIn()) {
+                status.innerText = "You need to wait 24 hours before checking in again.";
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Mine TheOG Token</h1>
+    <p id="status">Click the button to check in and mine tokens.</p>
+    <button id="checkInBtn">Check In</button>
+</body>
+</html>
